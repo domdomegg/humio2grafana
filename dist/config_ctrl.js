@@ -6,10 +6,22 @@ System.register([], function(exports_1) {
             HumioConfigCtrl = (function () {
                 /** @ngInject */
                 function HumioConfigCtrl($scope, $injector, $q, $http) {
-                    this.current = this.current || {};
-                    this.current.jsonData = this.current.jsonData || {};
-                    this.current.jsonData.humioToken = this.current.jsonData.humioToken || "";
+                    this.suggestUrl = 'https://cloud.humio.com';
+                    console.log(this.current);
+                    // NOTE: for humio always use proxy
+                    this.current.access = 'proxy';
+                    this.current.jsonData.encryptToken = this.current.jsonData.encryptToken || false;
                 }
+                HumioConfigCtrl.prototype.resetToken = function () {
+                    this.current.secureJsonFields.humioToken = false;
+                };
+                HumioConfigCtrl.prototype.getSuggestUrls = function () {
+                    return ['https://cloud.humio.com', 'https://go.humio.com'];
+                };
+                HumioConfigCtrl.prototype.onUseEncriptionChange = function () {
+                    console.log(this.current);
+                    console.log(this.current.encryptToken);
+                };
                 HumioConfigCtrl.templateUrl = "partials/config.html";
                 return HumioConfigCtrl;
             })();

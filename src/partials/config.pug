@@ -1,4 +1,37 @@
-datasource-http-settings(current="ctrl.current", suggest-url="https://cloud.humio.com/")
-h5 Humio access token
-.gf-form
-  input.gf-form-input(type="text", ng-model='ctrl.current.jsonData.humioToken', placeholder="")
+.gf-form-group
+  h3.page-heading HTTP
+  .gf-form-group
+    .gf-form-inline
+      gf-form-switch.gf-form(
+        label="Encrypt Token"
+        checked="ctrl.current.jsonData.encryptToken"
+        label-class="width-7"
+        on-change="ctrl.onUseEncriptionChange()"
+        switch-class="max-width-6")
+    .gf-form-inline
+      .gf-form.max-width-30
+        span.gf-form-label.width-7 URL
+        input.gf-form-input(
+          type='text',
+          ng-model='ctrl.current.url',
+          placeholder='{{ctrl.suggestUrl}}',
+          min-length='0',
+          ng-pattern='/^(ftp|http|https):\/\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\/|\/([\\w#!:.?+=&%@!\\-\/]))?$/',
+          bs-typeahead='ctrl.getSuggestUrls',
+          required)
+        info-popover(mode='right-absolute')
+          p Specify a complete HTTP URL (for example {{ ctrl.suggestUrl }})
+          span
+            | Your access method is <em>Proxy</em>, this means the URL
+            | needs to be accessible from the grafana backend.
+    .gf-form-inline
+      .gf-form.max-width-30
+        label.gf-form-label.width-7 API token
+        label.gf-form-label.width-19(ng-show="ctrl.current.secureJsonFields.humioToken") Configured
+        a.btn.btn-secondary.gf-form-btn(
+          type="submit" ng-click="ctrl.resetToken()" ng-show="ctrl.current.secureJsonFields.humioToken") Reset
+        input.gf-form-input(
+          type="text" 
+          ng-hide='ctrl.current.secureJsonFields.humioToken'
+          ng-model='ctrl.current.secureJsonData.humioToken')
+

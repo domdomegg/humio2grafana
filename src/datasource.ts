@@ -8,11 +8,10 @@ import IGrafanaAttrs from "./Interfaces/IGrafanaAttrs";
 export class GenericDatasource {
   type: string;
   url: string;
+  actualUrl: string;
   name: string;
 
   dsAttrs: IDatasourceAttrs;
-
-  templateSrv: any; // TODO: not sure if needed
 
   headers: any;
 
@@ -22,9 +21,20 @@ export class GenericDatasource {
   timeRange: any; // FIXME: used by parent controller
 
   /** @ngInject */
-  constructor(instanceSettings, $q, backendSrv, templateSrv, $location, $rootScope) {
+  constructor(instanceSettings, $q, backendSrv, $location, $rootScope, $http) {
+    console.log('--------------------------------');
+    console.log(instanceSettings);
+
+    $http({
+      url: "/api/datasources/11",
+      method: "GET",
+    }).then((res) => {
+      console.log(res);
+    })
+
     this.type = instanceSettings.type;
     this.url = instanceSettings.url ? instanceSettings.url.replace(/\/$/, "") : "";
+    this.actualUrl = instanceSettings.jsonData.url;
     this.name = instanceSettings.name;
 
     this.dsAttrs = {
@@ -34,13 +44,8 @@ export class GenericDatasource {
       $rootScope: $rootScope
     };
 
-    this.templateSrv = templateSrv;
-
     this.headers = {
       "Content-Type": "application/json",
-      "Authorization": "Bearer " +
-        (instanceSettings.jsonData ? (instanceSettings.jsonData.humioToken || "") :
-          "")
     };
 
     this.dsPanelStorage = new DsPanelStorage();
@@ -98,9 +103,8 @@ export class GenericDatasource {
   }
 
   doRequest(options) {
-    options.withCredentials = this.withCredentials;
     options.headers = this.headers;
-    options.url = this.url + options.url; // NOTE: adding base
+    options.url = this.url + "/humio-authenticated" + options.url; // NOTE: adding base
     return this.dsAttrs.backendSrv.datasourceRequest(options);
   }
 }

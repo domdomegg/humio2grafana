@@ -19,11 +19,29 @@
       {"name": "GitHub", "url": "https://github.com/humio/humio2grafana"},
       {"name": "Apache License", "url": "https://github.com/humio/humio2grafana/blob/master/LICENSE.md"}
     ],
-    "version": "1.0.3",
+    "version": "1.0.4",
     "updated": "2018-02-07"
   },
+  "routes": [
+    {
+      "path": "humio-authenticated",
+      "method": "GET",
+      "url": "http://test-ds",
+      "headers": [
+        {"name": "Authorization", "content": " Bearer {{.SecureJsonData.humioToken}}"}
+      ]
+    },
+    {
+      "path": "humio-authenticated",
+      "method": "POST",
+      "url": "http://test-ds",
+      "headers": [
+        {"name": "Authorization", "content": " Bearer {{.SecureJsonData.humioToken}}"}
+      ]
+    }
+  ],
   "dependencies": {
-    "grafanaVersion": "4.x.x",
+    "grafanaVersion": "5.x.x",
     "plugins": [ ]
   }
 }

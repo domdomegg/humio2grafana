@@ -28,6 +28,13 @@ System.register(["app/plugins/sdk", "lodash", "./helper", "./css/query-editor.cs
                     this.$scope = $scope;
                     this.$q = $q;
                     this.$location = $location;
+                    this.originalUrl = "";
+                    $http({
+                        url: "/api/datasources/" + this.datasource.id,
+                        method: "GET",
+                    }).then(function (res) {
+                        _this.originalUrl = res.data.url;
+                    });
                     this.target.humioQuery = this.target.humioQuery || "timechart()";
                     this.target.humioDataspace = this.target.humioDataspace || undefined;
                     this.dataspaces = [];
@@ -36,44 +43,49 @@ System.register(["app/plugins/sdk", "lodash", "./helper", "./css/query-editor.cs
                     });
                 }
                 GenericDatasourceQueryCtrl.prototype.getHumioLink = function () {
-                    // NOTE: settings for timechart
-                    var isLive = this.$location.search().hasOwnProperty("refresh") &&
-                        (helper_1.default.checkToDateNow(this.datasource.timeRange.raw.to));
-                    var start = "24h";
-                    var end = undefined;
-                    if (isLive) {
-                        start = helper_1.default.parseDateFrom(this.datasource.timeRange.raw.from);
+                    if (this.originalUrl !== "") {
+                        // NOTE: settings for timechart
+                        var isLive = this.$location.search().hasOwnProperty("refresh") &&
+                            (helper_1.default.checkToDateNow(this.datasource.timeRange.raw.to));
+                        var start = "24h";
+                        var end = undefined;
+                        if (isLive) {
+                            start = helper_1.default.parseDateFrom(this.datasource.timeRange.raw.from);
+                        }
+                        else {
+                            start = this.datasource.timeRange.from._d.getTime();
+                            end = this.datasource.timeRange.to._d.getTime();
+                        }
+                        var linkSettings = {
+                            "query": this.target.humioQuery,
+                            "live": isLive,
+                            "start": start,
+                        };
+                        if (end) {
+                            linkSettings["end"] = end;
+                        }
+                        var widgetType = helper_1.default.getPanelType(this.target.humioQuery);
+                        if (widgetType === "time-chart") {
+                            linkSettings["widgetType"] = widgetType;
+                            linkSettings["legend"] = "y";
+                            linkSettings["lx"] = "";
+                            linkSettings["ly"] = "";
+                            linkSettings["mn"] = "";
+                            linkSettings["mx"] = "";
+                            linkSettings["op"] = "0.2";
+                            linkSettings["p"] = "a";
+                            linkSettings["pl"] = "";
+                            linkSettings["plY"] = "";
+                            linkSettings["s"] = "";
+                            linkSettings["sc"] = "lin";
+                            linkSettings["stp"] = "y";
+                        }
+                        return this.originalUrl + "/" + this.target.humioDataspace +
+                            "/search?" + this._serializeQueryOpts(linkSettings);
                     }
                     else {
-                        start = this.datasource.timeRange.from._d.getTime();
-                        end = this.datasource.timeRange.to._d.getTime();
+                        return "#";
                     }
-                    var linkSettings = {
-                        "query": this.target.humioQuery,
-                        "live": isLive,
-                        "start": start,
-                    };
-                    if (end) {
-                        linkSettings["end"] = end;
-                    }
-                    var widgetType = helper_1.default.getPanelType(this.target.humioQuery);
-                    if (widgetType === "time-chart") {
-                        linkSettings["widgetType"] = widgetType;
-                        linkSettings["legend"] = "y";
-                        linkSettings["lx"] = "";
-                        linkSettings["ly"] = "";
-                        linkSettings["mn"] = "";
-                        linkSettings["mx"] = "";
-                        linkSettings["op"] = "0.2";
-                        linkSettings["p"] = "a";
-                        linkSettings["pl"] = "";
-                        linkSettings["plY"] = "";
-                        linkSettings["s"] = "";
-                        linkSettings["sc"] = "lin";
-                        linkSettings["stp"] = "y";
-                    }
-                    return this.datasource.url + "/" + this.target.humioDataspace +
-                        "/search?" + this._serializeQueryOpts(linkSettings);
                 };
                 GenericDatasourceQueryCtrl.prototype.onChangeInternal = function () {
                     this.panelCtrl.refresh(); // Asks the panel to refresh data.

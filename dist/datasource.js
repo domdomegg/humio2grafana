@@ -9,9 +9,18 @@ System.register(["./DsPanelStorage"], function(exports_1) {
         execute: function() {
             GenericDatasource = (function () {
                 /** @ngInject */
-                function GenericDatasource(instanceSettings, $q, backendSrv, templateSrv, $location, $rootScope) {
+                function GenericDatasource(instanceSettings, $q, backendSrv, $location, $rootScope, $http) {
+                    console.log('--------------------------------');
+                    console.log(instanceSettings);
+                    $http({
+                        url: "/api/datasources/11",
+                        method: "GET",
+                    }).then(function (res) {
+                        console.log(res);
+                    });
                     this.type = instanceSettings.type;
                     this.url = instanceSettings.url ? instanceSettings.url.replace(/\/$/, "") : "";
+                    this.actualUrl = instanceSettings.jsonData.url;
                     this.name = instanceSettings.name;
                     this.dsAttrs = {
                         $q: $q,
@@ -19,12 +28,8 @@ System.register(["./DsPanelStorage"], function(exports_1) {
                         backendSrv: backendSrv,
                         $rootScope: $rootScope
                     };
-                    this.templateSrv = templateSrv;
                     this.headers = {
                         "Content-Type": "application/json",
-                        "Authorization": "Bearer " +
-                            (instanceSettings.jsonData ? (instanceSettings.jsonData.humioToken || "") :
-                                "")
                     };
                     this.dsPanelStorage = new DsPanelStorage_1.default();
                     this.timeRange = null;
@@ -74,9 +79,8 @@ System.register(["./DsPanelStorage"], function(exports_1) {
                     });
                 };
                 GenericDatasource.prototype.doRequest = function (options) {
-                    options.withCredentials = this.withCredentials;
                     options.headers = this.headers;
-                    options.url = this.url + options.url; // NOTE: adding base
+                    options.url = this.url + "/humio-authenticated" + options.url; // NOTE: adding base
                     return this.dsAttrs.backendSrv.datasourceRequest(options);
                 };
                 return GenericDatasource;
