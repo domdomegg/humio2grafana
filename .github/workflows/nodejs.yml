@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [8, 10, 12]
+        node-version: ['lts/*', current]
     env:
       CI: true
     steps:
     - name: Checkout ${{ github.sha }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
@@ -28,4 +28,4 @@ jobs:
       run: |
         git add .
         NUMBER_OF_FILES_CHANGED=$(git diff --name-only HEAD | wc -l)
-        if [[ $NUMBER_OF_FILES_CHANGED -gt 0 ]]; then exit 1; fi
+        if [[ $NUMBER_OF_FILES_CHANGED -gt 0 ]]; then git diff --stat HEAD; git diff HEAD | head -50; exit 1; fi
