@@ -28,4 +28,4 @@ jobs:
       run: |
         git add .
         NUMBER_OF_FILES_CHANGED=$(git diff --name-only HEAD | wc -l)
-        if [[ $NUMBER_OF_FILES_CHANGED -gt 0 ]]; then exit 1; fi
+        if [[ $NUMBER_OF_FILES_CHANGED -gt 0 ]]; then git diff --stat HEAD; git diff HEAD | head -50; exit 1; fi
